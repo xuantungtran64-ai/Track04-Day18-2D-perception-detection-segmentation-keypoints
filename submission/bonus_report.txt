@@ -1,0 +1,7 @@
+﻿báo cáo bài tập về nhà phần 4c
+
+ở tập val gốc thì metric pose map không cho thấy sự chênh lệch lớn giữa hai mô hình nhưng khi chạy trên tập val lật gương thì mô hình dùng flip idx đồng nhất bị tụt map rất nhiều
+
+lý do là metric pose map đã che giấu lỗi do dữ liệu train và val gốc đều có hổ quay về cùng một phía nên mô hình không cần phân biệt trái phải vẫn đạt điểm cao
+
+để khắc phục thì ta cần thiết kế tập val đa dạng hơn bằng cách lật gương một nửa số ảnh để kiểm tra khả năng nhận diện trái phải thực sự của mô hình

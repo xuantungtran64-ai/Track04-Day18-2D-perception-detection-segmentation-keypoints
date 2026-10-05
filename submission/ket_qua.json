@@ -1,0 +1,85 @@
+{
+  "progress": {
+    "box_iou": "ok",
+    "nms": "ok",
+    "batched_nms": "ok",
+    "average_precision": "ok",
+    "mask_iou": "ok",
+    "polygon_to_mask": "ok",
+    "mask_to_yolo_seg": "ok",
+    "autolabel": "ok",
+    "oks": "ok",
+    "joint_angle": "ok",
+    "FLIP_IDX": "ok"
+  },
+  "latency": [
+    {
+      "Cấu hình": "one-to-many + NMS, conf 0.25",
+      "preprocess (ms)": 1.86,
+      "inference (ms)": 10.17,
+      "postprocess (ms)": 1.32,
+      "số box": 5
+    },
+    {
+      "Cấu hình": "one-to-many + NMS, conf 0.001",
+      "preprocess (ms)": 2.16,
+      "inference (ms)": 12.34,
+      "postprocess (ms)": 1.71,
+      "số box": 203
+    },
+    {
+      "Cấu hình": "one-to-one NMS-free, conf 0.25",
+      "preprocess (ms)": 2.43,
+      "inference (ms)": 12.61,
+      "postprocess (ms)": 0.56,
+      "số box": 5
+    },
+    {
+      "Cấu hình": "one-to-one NMS-free, conf 0.001",
+      "preprocess (ms)": 2.35,
+      "inference (ms)": 13.0,
+      "postprocess (ms)": 0.64,
+      "số box": 204
+    }
+  ],
+  "result_4b": {
+    "flip_idx": "giải phẫu",
+    "epochs": 40,
+    "imgsz": 640,
+    "Box mAP50-95": 0.9303488492063492,
+    "Pose mAP50": 0.995,
+    "Pose mAP50-95": 0.4573462529843696,
+    "train (phút)": 4.6
+  },
+  "result_4c": [
+    {
+      "Model": "flip_idx giải phẫu",
+      "Pose mAP50-95 — val gốc": 0.4573462529843696,
+      "Pose mAP50-95 — val lật gương": 0.43884777970456634
+    },
+    {
+      "Model": "flip_idx đồng nhất",
+      "Pose mAP50-95 — val gốc": 0.4169217121481716,
+      "Pose mAP50-95 — val lật gương": 0.29772304416546624
+    }
+  ],
+  "answers": {
+    "Q1": "ảnh 640x480 có lưới đặc trưng nhỏ hơn nên điểm neo chỉ là 6300 thay vì 8400. nhãn gốc dùng tọa độ góc trên trái nhưng phần mềm hiểu nhầm là tọa độ tâm nên mới bị lệch xuống dưới và sang phải",
+    "Q2": "độ phủ sóng ở mức tự tin thấp là thay đổi rõ nhất. cách lọc mới không xóa nhầm người đứng khuất nhau như nms cũ. với cảnh đông người thì giữ được nhiều vật thể hơn. ngoài ra đẩy việc lọc vào mạng nơ ron giúp chạy nhanh hơn trên các phần cứng yếu thay vì bắt cpu tính toán cồng kềnh",
+    "Q3": "thuật toán nms cũ hiểu lầm hai người là một và xóa bớt một người gây đếm thiếu. tăng ngưỡng thì giữ được người nhưng dễ đếm trùng còn giảm ngưỡng thì bớt đếm trùng nhưng lại dễ xóa nhầm người đứng sát nhau. lúc huấn luyện người ta dùng cách bắt cặp nhiều điểm để mạng học nhanh và rút trích đặc trưng tốt hơn",
+    "Q4": "hai người đứng dính nhau sẽ bị đếm thành một vùng làm đếm thiếu còn một người bị cột che giữa sẽ đếm thành hai vùng làm đếm thừa. phân vùng panoptic cấp mã riêng cho từng người nên đếm chính xác hơn. xe buýt hay bị gán nhầm thành tàu hỏa hoặc xe tải vì hình dáng to lớn và cửa sổ của chúng khá giống nhau",
+    "Q5": "yolo tạo mặt nạ nét cho vật nhỏ nhưng hơi mờ với vật to. mặt nạ r cnn thì ngược lại vì ép mọi vật về cỡ cố định nên vật to bị phóng to lên làm rỗ viền. nếu không dùng thuật toán bắt cặp hungarian thì nhiều vật thể đứng sát nhau có thể bị gán trùng vào chung một mặt nạ và làm sót vật thể khác",
+    "Q6": "chấm một điểm thì máy dễ nhầm đó là bánh xe hay nguyên cái xe nhưng khoanh hộp thì xác định đúng kích thước nên máy không bị bối rối. mô hình sam lớn nên chỉ dùng để tạo nhãn tự động rồi huấn luyện lại mô hình yolo nhỏ cho nhẹ để mang đi chạy thực tế với tốc độ cao",
+    "Q7": "dù nằm ngoài ảnh thì máy vẫn cố ép các khớp này nằm ở mép viền vì hàm argmax luôn bắt buộc chọn ra một vị trí có điểm số cao nhất. do đó mình phải có điểm tin cậy để loại bỏ những khớp bị che hoặc nằm ngoài ảnh này đi",
+    "Q8": "người 40x80 lệch khoảng 6 pixel là oks dưới 0.5 còn người 250x500 thì khoảng 41 pixel. sigma của mắt nhỏ vì mắt là điểm cố định dễ xác định. với camera trên cao người bé nên đoán lệch mắt một chút thôi là bị trừ điểm rất nặng",
+    "Q9": "luật này dễ báo nhầm khi người ta cúi nhặt đồ hoặc dựa tường và bỏ sót nếu họ ngã gục tại chỗ hoặc ngã chúi thẳng về phía trước. ảnh xoay ngang làm mất chiều thẳng đứng nên máy không nhận ra người nữa. hệ thống cảnh báo ngã thực tế cần theo dõi chuyển động qua nhiều khung hình và đo tốc độ rơi mới chính xác được",
+    "Q10": "điểm đánh giá sẽ không bị giảm vì dữ liệu thi giống hệt dữ liệu học. tuy nhiên nó sẽ thành lỗi thật sự khi mang ra chạy thực tế gặp hổ quay đầu sang trái do máy chưa từng học cách đảo ngược các khớp nên sẽ đoán lộn xộn",
+    "Q11": "lỗi thứ nhất ở bức ảnh con hổ đi ngang qua là nhầm chân trái phải làm các nét vẽ bị chéo nhau do chân hổ trông khá giống nhau. cách sửa là lật ảnh đúng chuẩn khi huấn luyện để máy học kỹ hơn. lỗi thứ hai trong ảnh con hổ nằm ở bãi cỏ là các khớp đuôi bay lơ lửng do bị che khuất. cách khắc phục là báo cho máy biết điểm nào bị che để máy không cố đoán mò",
+    "Q12": "điều này không hợp lý vì mũi hổ rất cố định còn đuôi hay ngoe nguẩy nên độ dao động của đuôi phải lớn hơn mũi rất nhiều. để tìm hệ số chuẩn cho tập dữ liệu mới mình nên cho nhiều người cùng bấm nhãn một vài tấm ảnh rồi đo mức độ chênh lệch bấm tay giữa họ để lấy làm chuẩn"
+  },
+  "env": {
+    "device": "cuda",
+    "torch": "2.11.0+cu130",
+    "ultralytics": "8.4.171"
+  }
+}
